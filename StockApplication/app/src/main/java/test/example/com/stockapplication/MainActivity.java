@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity
 
         this.stockRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        doLookup("science");
+        //doLookup("science");
     }
 
     public void onClickGo(View view)
@@ -53,15 +53,18 @@ public class MainActivity extends AppCompatActivity
     {
         toggleLoading(true);
 
-        new Handler().postDelayed(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                toggleLoading(false);
-            }
-        }, 2000);
+//        new Handler().postDelayed(new Runnable()
+//        {
+//            @Override
+//            public void run()
+//            {
+//                toggleLoading(false);
+//            }
+//        }, 2000);
 
+        StockAPI.Lookup(searchText);
+
+        toggleLoading(false);
 
         // TODO: do actual lookup
     }
