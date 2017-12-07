@@ -1,10 +1,10 @@
 package test.example.com.stockapplication;
 
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,10 +13,13 @@ import android.widget.ProgressBar;
 
 public class MainActivity extends AppCompatActivity
 {
+    private final String LOGTAG = "MainActivity";
     private RecyclerView stockRecyclerView;
     private EditText searchEditText;
     private ProgressBar loadingWheel;
     private Button goButton;
+
+    private LookupResultAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -30,11 +33,12 @@ public class MainActivity extends AppCompatActivity
 
         this.stockRecyclerView = findViewById(R.id.rv_stocks);
 
-        // TODO: adapter
+        this.adapter = new LookupResultAdapter();
+        this.stockRecyclerView.setAdapter(this.adapter);
 
         this.stockRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        //doLookup("science");
+        doLookup("science");
     }
 
     public void onClickGo(View view)
@@ -53,20 +57,39 @@ public class MainActivity extends AppCompatActivity
     {
         toggleLoading(true);
 
-//        new Handler().postDelayed(new Runnable()
-//        {
-//            @Override
-//            public void run()
-//            {
-//                toggleLoading(false);
-//            }
-//        }, 2000);
+        StockAPI.Lookup(searchText, new StockAPI.Callback()
+        {
+            @Override
+            public void onFailure(Exception e)
+            {
+                Log.e(LOGTAG, "Something happened", e);
 
-        StockAPI.Lookup(searchText);
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        toggleLoading(false);
+                    }
+                });
+            }
 
-        toggleLoading(false);
+            @Override
+            public void onResult(final LookupResult[] results)
+            {
+                Log.i(LOGTAG, "It works i promise");
 
-        // TODO: do actual lookup
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        adapter.setResults(results);
+                        toggleLoading(false);
+                    }
+                });
+            }
+        });
     }
 
 
